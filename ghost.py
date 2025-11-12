@@ -54,18 +54,42 @@ class Ghost(GameObject):
     def get_next_position(self):
         """Get next position based on current direction"""
         new_x, new_y = self.x, self.y
-        hitbox = None
+        
 
         if self.direction in [0, 2]:  # Right or Left
             self.last_RL_direction = self.direction
         
         # TODO: Écrire votre code ici
-        
+        if self.direction == 0:  # droite
+            new_x += self.speed
+        elif self.direction == 1:  # bas
+            new_y += self.speed
+        elif self.direction == 2:  # gauche
+            new_x -= self.speed
+        elif self.direction == 3:  # haut
+            new_y -= self.speed
+
+        hitbox = pygame.Rect(new_x, new_y, self.width, self.height)
         return new_x, new_y, hitbox
             
     def draw(self, screen):
         """Load ghost image"""
         # TODO: Écrire votre code ici
+        if self.vulnerable==False:
+            image=pygame.image.load(f'imgs/{self.color}_ghost.png')
+        else:
+            image=pygame.image.load('imgs/weak_ghost.png')
+
+        image = pygame.transform.scale(image, (self.width, self.height))
+        #Animation de marche:
+        if self.step=='right':
+            image=pygame.transform.rotate(image,10)
+        elif self.step=='left':
+            image=pygame.transform.rotate(image,-10)
+        #regard:
+        if self.last_RL_direction==2:#à gauche
+            image=pygame.transform.flip(image, True, False) 
+        screen.blit(image, (self.x, self.y))
     
     def make_vulnerable(self):
         """Make the ghost vulnerable to being eaten"""
@@ -96,15 +120,71 @@ class RedGhost(Ghost):
     
     def chase_pacman(self, maze, pacman):
         """Move towards Pacman"""
-        pacman_x, pacman_y = pacman.get_position()
+        pacman_x, pacman_y = pacman.x, pacman.y 
+
+        dx=pacman_x-self.x
+        dy=pacman_y-self.y
+
+        if abs(dx)> abs(dy):
+            if dx>0:
+                self.direction=0 #à droite
+            else:
+                self.direction=2 #à gauche
+        else: 
+            if dy>0:
+                self.direction=1 # bas 
+            else:
+                self.direction=3 #haut
         
+        new_x, new_y, hitbox = self.get_next_position()
+        if maze.is_wall_collision(hitbox):
+    # Essaie plusieurs fois de trouver une direction libre
+            for _ in range(4):
+                self.direction = random.choice([0, 1, 2, 3])
+                new_x, new_y, hitbox = self.get_next_position()
+                if not maze.is_wall_collision(hitbox):
+                    self.x = new_x
+                    self.y = new_y
+                    break
+        else:
+            self.x = new_x
+            self.y = new_y
+
+# avancer seulement si ce n'est pas un mur
+        if not maze.is_wall_collision(hitbox):
+            self.x = new_x
+            self.y = new_y
         # TODO: Écrire votre code ici
 
     def flee_from_pacman(self, maze, pacman):
         """Run away from Pacman when vulnerable"""
-        pacman_x, pacman_y = pacman.get_position()
+        
         
         # TODO: Écrire votre code ici
+        pacman_x, pacman_y = pacman.x, pacman.y 
+
+        dx=pacman_x-self.x
+        dy=pacman_y-self.y
+
+        if abs(dx)> abs(dy):
+            if dx>0:
+                self.direction=2 #à gauche
+            else:
+                self.direction=0 #à droite
+        else: 
+            if dy>0:
+                self.direction=3 #haut
+            else:
+                self.direction=1 # bas 
+        
+        new_x, new_y, hitbox = self.get_next_position()
+        if maze.is_wall_collision(hitbox):
+            self.direction = random.choice([0, 1, 2, 3])  # change de direction
+            
+        else:
+            self.x = new_x
+            self.y = new_y
+
 
 class PinkGhost(Ghost):
     """Pink ghost - tries to ambush Pacman"""
@@ -125,6 +205,32 @@ class PinkGhost(Ghost):
         pacman_x, pacman_y = pacman.get_position()
         
         # TODO: Écrire votre code ici
+        pacman_x, pacman_y = pacman.x, pacman.y
+        # ou il est devant pacman
+        target_x = pacman_x + (pacman_x - self.x) / 2
+        target_y = pacman_y + (pacman_y - self.y) / 2
+
+        dx=target_x-self.x
+        dy = target_y - self.y
+
+        if abs(dx) > abs(dy):
+            self.direction = 0 if dx > 0 else 2
+        else:
+            self.direction = 1 if dy > 0 else 3
+
+        new_x, new_y, hitbox = self.get_next_position()
+    
+        if maze.is_wall_collision(hitbox):
+            for _ in range(4):
+                self.direction = random.choice([0, 1, 2, 3])
+                new_x, new_y, hitbox = self.get_next_position()
+                if not maze.is_wall_collision(hitbox):
+                    self.x = new_x
+                    self.y = new_y
+                    break
+        else:
+            self.x = new_x
+            self.y = new_y
 
 class BlueGhost(Ghost):
     """Blue ghost - patrol behavior"""
@@ -139,6 +245,27 @@ class BlueGhost(Ghost):
         self.patrol_timer += 1
         
         # TODO: Écrire votre code ici
+        self.patrol_timer += 1
+
+        #patrouillé assez longtemps = on change de direction
+        if self.patrol_timer >= self.patrol_duration:
+            self.direction = random.choice([0, 1, 2, 3])
+            self.patrol_timer = 0
+        new_x, new_y, hitbox = self.get_next_position()
+
+        #en collision avec un mur 
+        if maze.is_wall_collision(hitbox):
+            for _ in range(4):
+                self.direction = random.choice([0, 1, 2, 3])
+                new_x, new_y, hitbox = self.get_next_position()
+                if not maze.is_wall_collision(hitbox):
+                    self.x = new_x
+                    self.y = new_y
+                    break
+        else:
+            self.x = new_x
+            self.y = new_y
+
 
 class OrangeGhost(RedGhost):
     """Orange ghost - mixed behavior"""
@@ -154,6 +281,34 @@ class OrangeGhost(RedGhost):
         self.behavior_timer += 1
         
         # TODO: Écrire votre code ici
+        self.behavior_timer += 1
+
+        #inverse le mode
+        if self.behavior_timer >= self.behavior_duration:
+            self.chase_mode = not self.chase_mode
+            self.behavior_timer = 0
+
+        #fantôme est vulnérable
+        if self.vulnerable:
+            self.flee_from_pacman(maze, pacman)
+        else:
+        # S’il est en mode "chasse"
+            if self.chase_mode:
+                self.chase_pacman(maze, pacman)
+        #touche un mur
+            else:
+                new_x, new_y, hitbox = self.get_next_position()
+                if maze.is_wall_collision(hitbox):
+                    for _ in range(4):
+                        self.direction = random.choice([0, 1, 2, 3])
+                        new_x, new_y, hitbox = self.get_next_position()
+                        if not maze.is_wall_collision(hitbox):
+                            self.x = new_x
+                            self.y = new_y
+                            break
+                else:
+                    self.x = new_x
+                    self.y = new_y
 
 
 ghosts_dict = {
