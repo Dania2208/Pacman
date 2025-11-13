@@ -1,0 +1,54 @@
+Au début, j’ai choisi de modifier le fichier maze.py. J’ai d’abord initialisé les deux portails à None et 
+j’ai fait en sorte qu’ils se génèrent automatiquement dès la création du labyrinthe avec self.generate_portals().
+Ensuite, j’ai créé la fonction generate_portals(self) qui sert à générer deux portails (un orange et un bleu) à 
+des positions aléatoires valides dans le labyrinthe, c’est-à-dire sur une case du chemin (valeur 0 dans self.layout).
+Après ça, j’ai ajouté la fonction check_portal_collision(self, hitbox) pour vérifier si Pacman entre dans un des portails.
+i c’est le cas, il est automatiquement téléporté à l’autre portail : par exemple, s’il entre dans le portail orange, il 
+ressort du portail bleu et vice-versa.Pour l’aspect visuel, j’ai décidé de les dessiner directement avec pygame.draw.circle 
+en leur donnant leur couleur respective.
+
+
+Ensuite, dans le fichier pacman.py, j’ai ajouté deux nouvelles variables : self.can_teleport = True et self.teleport_cooldown = 0. 
+La première me permet de détecter quand Pacman peut se téléporter, et la deuxième sert de délai pour éviter qu’il se téléporte plusieurs 
+fois d’affilée. En fait, au début, j’avais un bug : quand Pacman touchait un portail, il se mettait à clignoter entre les deux portails 
+en boucle, car il se téléportait sans arrêt. Pour corriger ce problème, j’ai décidé d’ajouter un cooldown de téléportation. Le principe 
+est simple : quand le cooldown est à 0, Pacman peut se téléporter normalement, mais dès qu’il touche un portail, le cooldown passe à 30. 
+Ensuite, à chaque cycle du jeu (chaque frame), cette valeur diminue de 1 jusqu’à revenir à 0. Ça permet de laisser un petit délai avant 
+qu’il puisse se téléporter à nouveau et donc d’éviter la boucle infinie.
+
+
+Ensuite, dans le fichier ghost.py, j’ai ajouté une nouvelle variable self.portal_cooldown = 0 dans le __init__ de chaque fantôme.Cette 
+variable sert de délai pour empêcher qu’un fantôme se téléporte plusieurs fois d’affilée.Ensuite, dans la méthode update de chaque fantôme, 
+après avoir calculé sa prochaine position et géré les collisions avec les murs, j’ai vérifié si le fantôme touchait un portail avec 
+maze.check_portal_collision.Si c’était le cas et que le cooldown était à 0, je mettais à jour les coordonnées du fantôme pour le placer au 
+centre du portail de sortie et je réinitialisais le cooldown à 30.À chaque cycle du jeu (chaque frame), le cooldown diminue de 1 jusqu’à revenir 
+à 0, ce qui permet au fantôme de se téléporter normalement tout en évitant qu’il se retrouve bloqué dans une boucle infinie entre les deux portails.
+Grâce à ça, tous les types de fantômes peuvent maintenant se téléporter correctement sans perturber leur comportement propre.
+
+
+Une des principales difficultés que j’ai rencontrées, c’était justement de comprendre pourquoi Pacman restait coincé entre les deux portails 
+et comment gérer correctement le temps dans le jeu. C’est là que j’ai compris l’importance du concept de frame dans un jeu vidéo : comme le 
+code est exécuté en continu à chaque image, il faut gérer le timing avec une variable qui diminue à chaque frame pour contrôler certaines actions. 
+Grâce à cette logique, j’ai pu stabiliser le système de téléportation et rendre le tout fluide et fonctionnel.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

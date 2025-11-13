@@ -20,6 +20,8 @@ class Ghost(GameObject):
         self.last_RL_direction = 0
         self.x = x - self.width // 2
         self.y = y - self.height // 2
+        # Pour gérer la téléportation
+        self.portal_cooldown = 0
 
     def update(self, maze, pacman):
         """Update ghost position and state"""
@@ -38,9 +40,24 @@ class Ghost(GameObject):
         
         # Move ghost
         self.move(maze, pacman)
+
+         # Gestion du cooldown du portail
+        if self.portal_cooldown > 0:
+            self.portal_cooldown -= 1
+
+        # Vérifier collision avec un portail
+        ghost_hitbox = pygame.Rect(self.x, self.y, self.width, self.height)
+        portal_result = maze.check_portal_collision(ghost_hitbox)
+        if portal_result and self.portal_cooldown == 0:
+            self.x = portal_result[0] - self.width // 2
+            self.y = portal_result[1] - self.height // 2
+            self.portal_cooldown = 30  # empêche la double téléportation
+
     
     def move(self, maze, pacman):
         """Basic ghost movement (random direction on collision)"""
+
+        
         new_x, new_y, hitbox = self.get_next_position()
         
         # Check for collision with walls
@@ -50,7 +67,9 @@ class Ghost(GameObject):
         else:
             self.x = new_x
             self.y = new_y
-    
+        
+
+
     def get_next_position(self):
         """Get next position based on current direction"""
         new_x, new_y = self.x, self.y
@@ -87,7 +106,7 @@ class Ghost(GameObject):
         elif self.step=='left':
             image=pygame.transform.rotate(image,-10)
         #regard:
-        if self.last_RL_direction==2:#à gauche
+        if self.last_RL_direction==0:#à gauche
             image=pygame.transform.flip(image, True, False) 
         screen.blit(image, (self.x, self.y))
     
@@ -139,21 +158,15 @@ class RedGhost(Ghost):
         new_x, new_y, hitbox = self.get_next_position()
         if maze.is_wall_collision(hitbox):
     # Essaie plusieurs fois de trouver une direction libre
-            for _ in range(4):
-                self.direction = random.choice([0, 1, 2, 3])
-                new_x, new_y, hitbox = self.get_next_position()
-                if not maze.is_wall_collision(hitbox):
-                    self.x = new_x
-                    self.y = new_y
-                    break
-        else:
+            
+            self.direction = random.choice([0, 1, 2, 3])
+        else: 
             self.x = new_x
             self.y = new_y
+            
+       
 
-# avancer seulement si ce n'est pas un mur
-        if not maze.is_wall_collision(hitbox):
-            self.x = new_x
-            self.y = new_y
+
         # TODO: Écrire votre code ici
 
     def flee_from_pacman(self, maze, pacman):
