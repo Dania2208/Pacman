@@ -196,7 +196,7 @@ class RedGhost(Ghost):
             
         else:
             self.x = new_x
-            self.y = new_y
+            self.y = new_y 
 
 
 class PinkGhost(Ghost):
@@ -234,16 +234,12 @@ class PinkGhost(Ghost):
         new_x, new_y, hitbox = self.get_next_position()
     
         if maze.is_wall_collision(hitbox):
-            for _ in range(4):
-                self.direction = random.choice([0, 1, 2, 3])
-                new_x, new_y, hitbox = self.get_next_position()
-                if not maze.is_wall_collision(hitbox):
-                    self.x = new_x
-                    self.y = new_y
-                    break
+            self.direction = random.choice([0, 1, 2, 3])  # change de direction
+            
         else:
             self.x = new_x
-            self.y = new_y
+            self.y = new_y 
+
 
 class BlueGhost(Ghost):
     """Blue ghost - patrol behavior"""
@@ -258,7 +254,7 @@ class BlueGhost(Ghost):
         self.patrol_timer += 1
         
         # TODO: Écrire votre code ici
-        self.patrol_timer += 1
+        
 
         #patrouillé assez longtemps = on change de direction
         if self.patrol_timer >= self.patrol_duration:
@@ -268,16 +264,12 @@ class BlueGhost(Ghost):
 
         #en collision avec un mur 
         if maze.is_wall_collision(hitbox):
-            for _ in range(4):
-                self.direction = random.choice([0, 1, 2, 3])
-                new_x, new_y, hitbox = self.get_next_position()
-                if not maze.is_wall_collision(hitbox):
-                    self.x = new_x
-                    self.y = new_y
-                    break
+            self.direction = random.choice([0, 1, 2, 3])  # change de direction
+            
         else:
             self.x = new_x
-            self.y = new_y
+            self.y = new_y 
+
 
 
 class OrangeGhost(RedGhost):
@@ -294,7 +286,7 @@ class OrangeGhost(RedGhost):
         self.behavior_timer += 1
         
         # TODO: Écrire votre code ici
-        self.behavior_timer += 1
+        
 
         #inverse le mode
         if self.behavior_timer >= self.behavior_duration:
@@ -312,16 +304,12 @@ class OrangeGhost(RedGhost):
             else:
                 new_x, new_y, hitbox = self.get_next_position()
                 if maze.is_wall_collision(hitbox):
-                    for _ in range(4):
-                        self.direction = random.choice([0, 1, 2, 3])
-                        new_x, new_y, hitbox = self.get_next_position()
-                        if not maze.is_wall_collision(hitbox):
-                            self.x = new_x
-                            self.y = new_y
-                            break
+                    self.direction = random.choice([0, 1, 2, 3])  # change de direction
+            
                 else:
                     self.x = new_x
-                    self.y = new_y
+                    self.y = new_y 
+
 
 
 ghosts_dict = {
