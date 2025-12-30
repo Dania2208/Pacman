@@ -1,13 +1,11 @@
 Dania Ait Mammar 
-
+INTRODUCTION: 
+Voici mon deuxième projet de INF1007. Voici les instructions pour la conception d'un pacman.
 
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/w0u_3EH_)
 # Projet 2 - Programmation orientée objet avec un jeu Pacman 🟡
 
 ## Directives
-:alarm_clock: Date de remise : 
-
-:mailbox_with_mail: À remettre sur Github : 
 
 ## Introduction
 Pacman, jeu d'arcade emblématique et intemporel, constitue un excellent moyen d'explorer les concepts de programmation orientée objet. Dans ce projet, vous découvrirez une implémentation complète du jeu utilisant les principes de programmation orientée objet avec Python et la bibliothèque Pygame.
